@@ -64,6 +64,104 @@ exit
 2. Ouvre un **Terminal** sur le PC et tente un accès Telnet ou SSH vers le routeur.
 3. Le routeur demandera un **login**. Tu dois utiliser les identifiants définis sur le serveur AAA (`admin / cisco`).
 
+guide HSRP :
+Voici un **guide simple et clair pour configurer HSRP (Hot Standby Router Protocol)** sur Cisco Packet Tracer.
+
 ---
 
-Si tu veux, je peux te faire un schéma visuel ou t’envoyer un fichier `.pkt` de Packet Tracer avec tout ça préconfiguré. Tu préfères ?
+## **Qu’est-ce que HSRP ?**
+
+HSRP permet de créer une **passerelle virtuelle (IP virtuelle)** entre **deux routeurs** pour assurer une **haute disponibilité**. Si un routeur tombe, l’autre prend automatiquement le relais sans interruption pour les clients.
+
+---
+
+## **Matériel requis dans Packet Tracer**
+- 2 routeurs (ex : Cisco 2911)
+- 1 switch
+- 1 PC (ou plus pour tester)
+- Câbles Ethernet
+
+---
+
+## **Schéma réseau simple**
+
+```
+PC ---- Switch ---- Routeur1
+                 \_ Routeur2
+```
+
+---
+
+## **Étapes de configuration**
+
+### **1. Configurer les interfaces IP des routeurs**
+
+#### Routeur 1 :
+```bash
+enable
+configure terminal
+interface g0/0
+ip address 192.168.1.2 255.255.255.0
+no shutdown
+exit
+```
+
+#### Routeur 2 :
+```bash
+enable
+configure terminal
+interface g0/0
+ip address 192.168.1.3 255.255.255.0
+no shutdown
+exit
+```
+
+---
+
+### **2. Activer HSRP sur les deux routeurs**
+
+#### Routeur 1 (priorité plus haute) :
+```bash
+interface g0/0
+standby 1 ip 192.168.1.1
+standby 1 priority 110
+standby 1 preempt
+```
+
+#### Routeur 2 :
+```bash
+interface g0/0
+standby 1 ip 192.168.1.1
+standby 1 priority 100
+standby 1 preempt
+```
+
+> **Note :** `192.168.1.1` est l’**adresse IP virtuelle** (celle que le PC utilisera comme passerelle).
+
+---
+
+### **3. Configurer le PC**
+- IP : `192.168.1.10`
+- Masque : `255.255.255.0`
+- Passerelle : `192.168.1.1` (l’adresse **virtuelle** HSRP)
+
+---
+
+### **4. Tester le HSRP**
+- Depuis le PC, **ping** `192.168.1.1`
+- Éteins Routeur 1 : le **Routeur 2 prend le relais**
+- Tu peux continuer à pinger sans interruption
+
+---
+
+### **Commandes utiles de vérification**
+Sur un des routeurs :
+```bash
+show standby
+```
+
+Tu verras qui est le **routeur actif** et le **routeur de secours**.
+
+---
+
+Souhaites-tu un fichier `.pkt` prêt à utiliser avec cette configuration ? Ou un schéma illustré ?
